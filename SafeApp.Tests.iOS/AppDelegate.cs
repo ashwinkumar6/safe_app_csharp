@@ -22,6 +22,7 @@
 // ***********************************************************************
 
 using System.IO;
+using System.Linq;
 using Foundation;
 using NUnit.Runner;
 using NUnit.Runner.Services;
@@ -45,7 +46,7 @@ namespace SafeApp.Tests.iOS
         //
         // You have 17 seconds to return from this method, or iOS will terminate your application.
         //
-        string TCP_LISTEN_HOST = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList.First(f => f.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+        readonly string _tcpListenHost = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList.First(f => f.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             Forms.Init();
@@ -64,7 +65,7 @@ namespace SafeApp.Tests.iOS
 
                     // Information about the tcp listener host and port.
                     // For now, send result as XML to the listening server.
-                    TcpWriterParameters = new TcpWriterInfo(TCP_LISTEN_HOST, 10500),
+                    TcpWriterParameters = new TcpWriterInfo(_tcpListenHost, 10500),
 
                     // Creates a NUnit Xml result file on the host file system using PCLStorage library.
                     CreateXmlResultFile = true,

@@ -59,7 +59,7 @@ Task("Run-Android-Tests")
     // Start up the emulator by name
     var emu = StartAndReturnProcess(emulatorPath, new ProcessSettings
     {
-        Arguments = $"-avd {ANDROID_AVD}"
+        Arguments = $"-avd {ANDROID_AVD} -gpu auto -noaudio"
     });
     var adbSettings = new AdbToolSettings { SdkRoot = ANDROID_HOME };
 

@@ -15,6 +15,7 @@ var ANDROID_TCP_LISTEN_PORT = 10500;
 var ANDROID_HOME = EnvironmentVariable("ANDROID_HOME");
 
 Task("Build-Android-Test-Project")
+    .IsDependentOn("Restore-NuGet")
     .Does(() => {
     // Build the app in debug mode
     // needs to be debug so unit tests get discovered

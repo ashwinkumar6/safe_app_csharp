@@ -29,7 +29,7 @@ namespace SafeApp.Tests
 
         public static async Task<string> AuthenticateAuthRequest(string ipcMsg, bool allow)
         {
-            //
+            //just a comment
             var authenticator = await Authenticator.CreateAccountAsync(GetRandomString(10), GetRandomString(10), GetRandomString(5));
             return await AuthenticateAuthRequest(authenticator, ipcMsg, allow);
         }

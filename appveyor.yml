@@ -5,10 +5,6 @@ environment:
 init:
   - ps: if(-not $env:APPVEYOR_PULL_REQUEST_NUMBER) { $env:is_not_pr = "true"; }
 
-branches:
-  only:
-    - master
-
 cache:
   - '%temp%\nativelibs'
   - '%USERPROFILE%\.nuget\packages'

@@ -1,6 +1,6 @@
 #tool nuget:?package=JetBrains.ReSharper.CommandLineTools&version=2018.1.3
-#addin Cake.Issues
-#addin Cake.Issues.InspectCode
+#addin nuget:?package=Cake.Issues&version=0.6.0
+#addin nuget:?package=Cake.Issues.InspectCode&version=0.6.0
 
 var logPath = @"resharper-clt-output.xml";
 var buildDirectory = Directory(".");

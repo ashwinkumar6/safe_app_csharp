@@ -25,8 +25,8 @@ Task("Restore-NuGet")
 
 Task("Analyse-Test-Result-Files")
   .Does(() => {
-    AnalyseResultFile(Desktop_TESTS_RESULT_PATH);
-    AnalyseResultFile(ANDROID_TESTS_RESULT_PATH);
+    //AnalyseResultFile(Desktop_TESTS_RESULT_PATH);
+    //AnalyseResultFile(ANDROID_TESTS_RESULT_PATH);
     AnalyseResultFile(IOS_TESTS_RESULT_PATH);
     Information("All Test Results Analysed successfully.");
 });
@@ -35,7 +35,7 @@ Task("Default")
   .IsDependentOn("UnZip-Libs")
   .IsDependentOn("Analyze-Project-Report")
   .IsDependentOn("Run-Desktop-Tests")
-  .IsDependentOn("Run-Android-Tests")
+  //.IsDependentOn("Run-Android-Tests")
   .IsDependentOn("Run-iOS-Tests")
   .IsDependentOn("Analyse-Test-Result-Files")
   .Does(() => {

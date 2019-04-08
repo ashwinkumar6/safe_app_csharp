@@ -11,6 +11,7 @@ var coreTestBin = Directory("SafeApp.Tests.Core/bin/Release");
 var codeCoverageFilePath = "SafeApp.Tests.Core/CodeCoverResult.xml";
 var Desktop_TESTS_RESULT_PATH = "SafeApp.Tests.Core/TestResults/DesktopTestResult.xml";
 var coveralls_token = EnvironmentVariable("coveralls_access_token");
+bool is_not_pr = Boolean.Parse(EnvironmentVariable("is_not_pr"));
 
 Task("Build-Desktop-Project")
   .IsDependentOn("Restore-NuGet")
@@ -76,7 +77,7 @@ Task("Run-Desktop-Tests-AppVeyor")
   });
 
 Task("Upload-Coverage-Report")
-  .WithCriteria(!EnvironmentVariable("is_not_pr"))
+  .WithCriteria(!is_not_pr)
   .IsDependentOn("Run-Desktop-Tests")
   .Does(() => {
     CoverallsIo(codeCoverageFilePath, new CoverallsIoSettings()

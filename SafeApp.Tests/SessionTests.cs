@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using SafeApp.MockAuthBindings;
 
 namespace SafeApp.Tests
 {
@@ -11,11 +8,19 @@ namespace SafeApp.Tests
     internal class SessionTests
     {
         [Test]
-        public async Task NetworkDisconnectAsync()
+        public async Task NetworkReconnectTest()
         {
             var session = await Utils.CreateTestApp();
+
+            Session.Disconnected += async (o, i) =>
+            {
+                Assert.True(session.IsDisconnected);
+                await session.ReconnectAsync();
+                Assert.False(session.IsDisconnected);
+            };
+
             Assert.False(session.IsDisconnected);
-            TestUtils.TestSimulateNetworkDisconnectAsync();
+            await session.SimulateMockNetworkDisconnectAsync();
         }
     }
 }

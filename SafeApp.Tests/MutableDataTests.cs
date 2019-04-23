@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SafeApp.Misc;
 using SafeApp.Utilities;
 
 // ReSharper disable AccessToDisposedClosure
@@ -149,6 +150,63 @@ namespace SafeApp.Tests
             deletedValue = await app.MData.GetValueAsync(mdInfo, keyToDelete.Key);
             Assert.That(deletedValue.Item2, Is.EqualTo(3));
             app.Dispose();
+        }
+
+        [Test]
+        public async Task PrivateMutableDataPermissionTest()
+        {
+            var session = await Utils.CreateTestApp();
+            const ulong tagType = 15020;
+            var appName = Utils.GetRandomData(10).ToList();
+            var xorName = (await Crypto.Sha3HashAsync(appName)).ToArray();
+            var nonce = await Crypto.GenerateNonceAsync();
+            var encKeyPairTuple = await session.Crypto.EncGenerateKeyPairAsync();
+            var rawKey = await session.Crypto.EncPubKeyGetAsync(encKeyPairTuple.Item1);
+            var mdInfo = await session.MDataInfoActions.NewPrivateAsync(xorName, tagType, rawKey, nonce);
+
+            var mDataPermissionSet = new PermissionSet { Read = true, Insert = true, ManagePermissions = true };
+            using (var permissionsH = await session.MDataPermissions.NewAsync())
+            {
+                using (var appSignKeyH = await session.Crypto.AppPubSignKeyAsync())
+                {
+                    await session.MDataPermissions.InsertAsync(permissionsH, appSignKeyH, mDataPermissionSet);
+                    await session.MData.PutAsync(mdInfo, permissionsH, NativeHandle.EmptyMDataEntries);
+                }
+            }
+
+            using (var appPubSignKeyH = await session.Crypto.AppPubSignKeyAsync())
+            {
+                mDataPermissionSet = new PermissionSet { Read = true, Insert = true, ManagePermissions = true, Update = true };
+                var mDataVersion = await session.MData.GetVersionAsync(mdInfo);
+                await session.MData.SetUserPermissionsAsync(mdInfo, appPubSignKeyH, mDataPermissionSet, mDataVersion + 1);
+
+                using (var permissionsH = await session.MData.ListPermissionsAsync(mdInfo))
+                {
+                    var permissionsGranted = await session.MDataPermissions.GetAsync(permissionsH, appPubSignKeyH);
+                    Assert.AreEqual(mDataPermissionSet, permissionsGranted);
+                }
+            }
+
+            var entriesCount = 10;
+            using (var entryActionsH = await session.MDataEntryActions.NewAsync())
+            {
+                for (var i = 0; i < entriesCount; i++)
+                {
+                    var key = Encoding.ASCII.GetBytes(Utils.GetRandomString(10)).ToList();
+                    var value = Encoding.ASCII.GetBytes(Utils.GetRandomString(10)).ToList();
+                    await session.MDataEntryActions.InsertAsync(entryActionsH, key, value);
+                }
+                await session.MData.MutateEntriesAsync(mdInfo, entryActionsH);
+            }
+
+            var mdValues = await session.MData.ListValuesAsync(mdInfo);
+            Assert.AreEqual(entriesCount, mdValues.Count);
+
+            using (var entryH = await session.MDataEntries.GetHandleAsync(mdInfo))
+            {
+                var totalEntries = await session.MDataEntries.LenAsync(entryH);
+                Assert.AreEqual(entriesCount, totalEntries);
+            }
         }
 
         [Test]
